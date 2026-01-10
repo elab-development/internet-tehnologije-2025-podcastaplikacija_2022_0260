@@ -1,6 +1,7 @@
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-green-600 via-blue-400 to-indigo-900">
+    //bg-gradient-to-br from-purple-600 via-blue-400 to-indigo-900
+    <main className="min-h-screen bg-gradient-to-br from-black-900 via-purple-900/20 to-purple-600">
       <div className="container mx-auto px-4 py-20">
         
         {/* Hero sekcija */}
