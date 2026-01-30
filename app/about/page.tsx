@@ -115,8 +115,7 @@ export default function About() {
               <Link href="/login">Započni danas</Link>
             </button>
             <button className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full font-heading font-semibold text-lg hover:bg-white hover:text-purple-600 transition-all duration-300">
-              <Link href="/">Kontaktiraj nas</Link> 
-              {/* u redu iznad dodati link ka kontakt stranici */}
+              <Link href="/contact">Kontaktiraj nas</Link> 
             </button>
           </div>
         </div>
