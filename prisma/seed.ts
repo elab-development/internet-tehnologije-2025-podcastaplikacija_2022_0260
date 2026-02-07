@@ -55,7 +55,7 @@ async function main() {
     data: {
       ime: 'gost',
       prezime: 'gostic',
-      email: 'gost@tunein.com',
+      email: 'gost@tunein.com', //ovo nema smisla, promeniti
       lozinkaHash: password,
       uloga: 'GOST',
     },

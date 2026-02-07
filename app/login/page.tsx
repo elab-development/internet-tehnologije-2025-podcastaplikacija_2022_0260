@@ -5,51 +5,53 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
-  const [email, setEmail] = useState(""); //prva vrednost je trenutna vrednost, druga je funkcija kojom menjam email, a u zagradi je sa cim menjam
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); //ova linija cuva poruku greske ako prijava ne uspe
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter(); //ovo je hook, koristi se za komunikaciju izmedju razlicith stranica na nasem sajtu
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    //funkcija se poziva kad se submituje forma
-    e.preventDefault(); //sa vezbi fora, sprecava default ponasanje forme, bez ovoga bi react state bio resetovan
+    e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
       const response = await fetch("/api/auth/login", {
-        method: "POST", //saljem post http zahtev na auth/login rutu
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-      }); //stringify metoda pretara js objekat u json string!! takvi podaci mogu da se salju!!
+      });
 
       const data = await response.json();
 
       if (data.success) {
-        // Sačuvaj token
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.korisnik));
 
+        // Emituj event da je korisnik prijavljen
+        window.dispatchEvent(new Event("userLoggedIn"));
+
         alert(`Dobrodošli, ${data.data.korisnik.ime}!`);
-        router.push("/podcasts"); //pri logovanju prebacuje korisnika na ovu strnaicu automatski
+        router.push("/podcasts");
       } else {
         setError(data.error || "Greška pri prijavljivanju");
       }
     } catch (err) {
       setError("Greška pri povezivanju sa serverom");
     } finally {
-      setLoading(false); //gasi loading stanje!!!
+      setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-black-900 via-purple-900/20 to-purple-600 flex items-center justify-center px-4 py-16">
+    <main className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 md:p-10 border border-white/20 shadow-2xl">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-heading text-white mb-2">
-              Dobrodošli nazad!
+              Dobrodošli nazad! 🎧
             </h1>
             <p className="text-white/80 font-body">
               Prijavite se na vaš Tune In nalog
@@ -88,15 +90,24 @@ export default function Login() {
               >
                 Lozinka
               </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 transition backdrop-blur-sm"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 transition backdrop-blur-sm"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition"
+                >
+                  {showPassword ? "👁️" : "👁️‍🗨️"}
+                </button>
+              </div>
             </div>
 
             <button
