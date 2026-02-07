@@ -2,111 +2,165 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUser, requireAuth } from '@/lib/middleware'
 
-
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
-  const params = await context.params //zbog ovog nam nije radilo
-  console.log("GET /api/podcasts/[id] called with id:", params.id)
-
+// GET /api/podcasts/[id]
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }  // ← PROMENJENO
+) {
   try {
+    const params = await context.params  // ← AWAIT
     const podcast = await prisma.podcast.findUnique({
       where: { id: parseInt(params.id) },
       include: {
         kreira: {
-          select: { ime: true, prezime: true }
+          select: {
+            ime: true,
+            prezime: true
+          }
         },
         komentari: {
           include: {
-            korisnik: { select: { ime: true, prezime: true } }
+            korisnik: {
+              select: {
+                ime: true,
+                prezime: true
+              }
+            }
           }
         },
-        favoriti: { select: { id: true } }
+        favoriti: {
+          select: { 
+            id: true,
+            korisnikId: true 
+          }
+        }
       }
     })
 
     if (!podcast) {
-      console.log("Podcast not found:", params.id)
-      return NextResponse.json({ success: false, error: 'Podcast nije pronađen' }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: 'Podcast nije pronađen' },
+        { status: 404 }
+      )
     }
 
-    console.log("Podcast found:", podcast)
     return NextResponse.json(podcast)
   } catch (error) {
     console.error('Greška prilikom dohvata podcasta:', error)
-    return NextResponse.json({ success: false, error: 'Greška pri učitavanju podcasta' }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: 'Greška pri učitavanju podcasta' },
+      { status: 500 }
+    )
   }
 }
 
-// PUT KACENJE PODCASTA samo korisnik ili admin
-export async function PUT(req: NextRequest, context: { params: { id: string } }) {
-  const params = await context.params
+// PUT /api/podcasts/[id]
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }  // ← PROMENJENO
+) {
   const authError = requireAuth(req, ['KORISNIK', 'ADMIN'])
   if (authError) return authError
 
   try {
     const user = getAuthUser(req)!
-    console.log("Authenticated user for PUT:", user)
-
+    const params = await context.params  // ← AWAIT
     const { naslov, opis, audioUrl, coverUrl } = await req.json()
 
-    const podcast = await prisma.podcast.findUnique({ where: { id: parseInt(params.id) } })
+    const podcast = await prisma.podcast.findUnique({
+      where: { id: parseInt(params.id) }
+    })
+
     if (!podcast) {
-      console.log("Podcast not found for PUT:", params.id)
-      return NextResponse.json({ success: false, error: 'Podcast nije pronađen' }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: 'Podcast nije pronađen' },
+        { status: 404 }
+      )
     }
 
     if (podcast.kreiraId !== user.userId && user.uloga !== 'ADMIN') {
-      console.log("User not authorized to update podcast:", user.userId)
-      return NextResponse.json({ success: false, error: 'Nemate dozvolu da menjate ovaj podcast' }, { status: 403 })
+      return NextResponse.json(
+        { success: false, error: 'Nemate dozvolu da menjate ovaj podcast' },
+        { status: 403 }
+      )
     }
 
     const updatedPodcast = await prisma.podcast.update({
       where: { id: parseInt(params.id) },
-      data: { naslov, opis, audioUrl, coverUrl },
-      include: { kreira: { select: { ime: true, prezime: true } } }
+      data: {
+        naslov,
+        opis,
+        audioUrl,
+        coverUrl
+      },
+      include: {
+        kreira: {
+          select: {
+            ime: true,
+            prezime: true
+          }
+        }
+      }
     })
 
-    console.log("Podcast updated:", updatedPodcast)
-    return NextResponse.json({ success: true, data: updatedPodcast })
+    return NextResponse.json({
+      success: true,
+      data: updatedPodcast
+    })
+
   } catch (error) {
     console.error('Greška pri izmeni podcasta:', error)
-    return NextResponse.json({ success: false, error: 'Greška pri izmeni podcasta' }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: 'Greška pri izmeni podcasta' },
+      { status: 500 }
+    )
   }
 }
 
-// DELETE podcastove - samo ADMINI mogu da brisu
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
-  const params = await context.params
-  console.log("DELETE /api/podcasts/[id] called with id:", params.id)
-
+// DELETE /api/podcasts/[id]
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> } 
+) {
   const authError = requireAuth(req, ['KORISNIK', 'ADMIN'])
-  if (authError) {
-    console.log("Auth error for DELETE:", authError)
-    return authError
-  }
+  if (authError) return authError
 
   try {
     const user = getAuthUser(req)!
-    console.log("Authenticated user for DELETE:", user)
+    const params = await context.params 
 
-    const podcast = await prisma.podcast.findUnique({ where: { id: parseInt(params.id) } })
-    console.log("Podcast to delete:", podcast)
+    const podcast = await prisma.podcast.findUnique({
+      where: { id: parseInt(params.id) }
+    })
 
     if (!podcast) {
-      console.log("Podcast not found for DELETE:", params.id)
-      return NextResponse.json({ success: false, error: 'Podcast nije pronađen' }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: 'Podcast nije pronađen' },
+        { status: 404 }
+      )
     }
 
     if (podcast.kreiraId !== user.userId && user.uloga !== 'ADMIN') {
-      console.log("User not authorized to delete podcast:", user.userId)
-      return NextResponse.json({ success: false, error: 'Nemate dozvolu da obrišete ovaj podcast' }, { status: 403 })
+      return NextResponse.json(
+        { success: false, error: 'Nemate dozvolu da obrišete ovaj podcast' },
+        { status: 403 }
+      )
     }
 
-    await prisma.podcast.delete({ where: { id: parseInt(params.id) } })
-    console.log("Podcast successfully deleted:", params.id)
+    await prisma.podcast.delete({
+      where: { id: parseInt(params.id) }
+    })
 
-    return NextResponse.json({ success: true, message: 'Podcast je uspešno obrisan' })
+    return NextResponse.json({
+      success: true,
+      message: 'Podcast je uspešno obrisan'
+    })
+
   } catch (error) {
     console.error('Greška pri brisanju podcasta:', error)
-    return NextResponse.json({ success: false, error: 'Greška pri brisanju podcasta' }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: 'Greška pri brisanju podcasta' },
+      { status: 500 }
+    )
   }
 }
