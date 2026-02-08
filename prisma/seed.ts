@@ -67,7 +67,7 @@ async function main() {
     data: {
       naslov: 'Od FON-ove diplome do prvog posla',
       opis: 'U ovom podcastu razgovaramo o traženju posla nakon studiranja.',
-      audioUrl: '',  //pitati mentorku oko audio fajlova?
+      audioUrl: '/audio/1.mp3',
       coverUrl: 'https://picsum.photos/id/3/200/300',
       brojPregleda: 150,
       kreiraId: kreator1.id,
@@ -78,7 +78,7 @@ async function main() {
     data: {
       naslov: 'Zdravlje i Fitness',
       opis: 'Praktični saveti za početnike koji žele da uvedu fitness u svoju rutinu.',
-      audioUrl: '', //???
+      audioUrl: '/audio/2.mp3', 
       coverUrl: 'https://picsum.photos/id/13/200/300',
       brojPregleda: 289,
       kreiraId: kreator2.id,
@@ -89,7 +89,7 @@ async function main() {
     data: {
       naslov: 'Priče iz Srbije',
       opis: 'Zanimljive priče iz srpske istorije i kulture.',
-      audioUrl: '', //???
+      audioUrl: '/audio/3.mp3', 
       coverUrl: 'https://picsum.photos/id/380/200/300',
       brojPregleda: 234,
       kreiraId: kreator1.id,

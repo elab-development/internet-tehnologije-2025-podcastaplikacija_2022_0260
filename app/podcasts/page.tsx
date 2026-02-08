@@ -27,6 +27,7 @@ interface Podcast {
   naslov: string;
   opis: string;
   coverUrl?: string;
+  audioUrl?: string;
   brojPregleda: number;
   kreira: Korisnik;
   komentari: Komentar[];
