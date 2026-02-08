@@ -64,7 +64,7 @@ export default function PodcastsPage() {
       });
   }, []);
 
-  /// Funkcije za kreiranje novog podcasta
+  /// funkcije za kreiranje novog podcasta
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -224,13 +224,14 @@ export default function PodcastsPage() {
               placeholder="Cover URL (opciono)"
               value={newPodcast.coverUrl}
               onChange={handleInputChange}
-              className="w-full mb-2 p-2 rounded bg-white/20 text-white"
+              className="w-full mb-2 p-2 rounded bg-white/20 text-white "
             />
             <button
               onClick={handleAddPodcast}
-              className="w-full mt-2 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded"
+              className="w-full mt-3 py-4 bg-white/10 text-white font-semibold rounded-lg
+             hover:bg-purple-700 transition-colors duration-200"
             >
-              Dodaj Podcast
+              Dodaj podcast
             </button>
           </div>
         )}

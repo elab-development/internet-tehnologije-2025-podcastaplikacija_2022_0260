@@ -2,10 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 
-/* =======================
-   TIPOVI
-======================= */
-
 interface Korisnik {
   ime: string;
   prezime: string;
@@ -84,6 +80,11 @@ const PodcastCard: React.FC<Props> = ({
   // play pause dugme za muziku
   const handlePlayPause = () => {
     if (!podcast.audioUrl) return;
+
+    if (!user) {
+      alert("Morate biti prijavljeni!");
+      return;
+    }
 
     if (!audioRef.current) {
       audioRef.current = new Audio(podcast.audioUrl);
