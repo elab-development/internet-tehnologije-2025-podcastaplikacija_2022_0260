@@ -37,6 +37,7 @@ interface Props {
   user?: { userId: number; uloga: string };
   onDelete?: (podcastId: number) => void;
   canPlay?: boolean;
+  onCommentAdded?: () => void; // callback refresh liste?
 }
 
 const PodcastCard: React.FC<Props> = ({
@@ -44,9 +45,13 @@ const PodcastCard: React.FC<Props> = ({
   user,
   onDelete,
   canPlay = false,
+  onCommentAdded,
 }) => {
   const [isFavorited, setIsFavorited] = useState<boolean>(false);
   const [favoriteCount, setFavoriteCount] = useState(podcast.favoriti.length);
+  const [komentari, setKomentari] = useState(podcast.komentari);
+  const [noviKomentar, setNoviKomentar] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -63,7 +68,6 @@ const PodcastCard: React.FC<Props> = ({
       return;
     }
 
-    //provera da ako je gost mora da se registruje
     if (user.uloga === "GOST") {
       alert("Gosti ne mogu dodavati u favorite! Registrujte se kao korisnik.");
       return;
@@ -79,17 +83,14 @@ const PodcastCard: React.FC<Props> = ({
         },
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        alert(data.error || "Greška pri dodavanju u favorite!");
+        alert("Greška pri dodavanju u favorite!");
         return;
       }
 
+      const data = await res.json();
       setIsFavorited(data.favorited);
       setFavoriteCount((prev) => (data.favorited ? prev + 1 : prev - 1));
-
-      // ex.printstacktrace
       alert(data.message);
     } catch (err) {
       console.error(err);
@@ -97,8 +98,64 @@ const PodcastCard: React.FC<Props> = ({
     }
   };
 
-  // ako je korisnik ili admin moze da doda u fav
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!user) {
+      alert("Morate biti prijavljeni da biste ostavili komentar!");
+      return;
+    }
+
+    if (user.uloga === "GOST") {
+      alert("Gosti ne mogu ostavljati komentare! Registrujte se kao korisnik.");
+      return;
+    }
+
+    if (!noviKomentar.trim()) {
+      alert("Komentar ne može biti prazan!");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/podcasts/${podcast.id}/komentari`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tekst: noviKomentar }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Greška pri dodavanju komentara!");
+        return;
+      }
+
+      // dodaj novi komentar u listu
+      setKomentari([data.data, ...komentari]);
+      setNoviKomentar("");
+      alert(data.message);
+
+      // callback
+      if (onCommentAdded) {
+        onCommentAdded();
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Greška pri dodavanju komentara!");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const canFavorite =
+    user && (user.uloga === "KORISNIK" || user.uloga === "ADMIN");
+  const canComment =
     user && (user.uloga === "KORISNIK" || user.uloga === "ADMIN");
 
   return (
@@ -134,23 +191,24 @@ const PodcastCard: React.FC<Props> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-3 mb-3 text-white/70 text-xs">
+        <div className="flex items-center gap-3 mb-3 text-white/70 text-xs font-body">
           <span className="flex items-center gap-1">
             <span>⭐</span>
             <span>
-              {favoriteCount} {favoriteCount === 1 ? "favorit" : "favorita"}
+              {favoriteCount} {favoriteCount === 1 ? "favorit" : "favorita"} 
+              {/* brojanje favCount, ternary operator za jedan ili vise */}
             </span>
           </span>
           <span className="flex items-center gap-1">
             <span>💬</span>
             <span>
-              {podcast.komentari.length}{" "}
-              {podcast.komentari.length === 1 ? "komentar" : "komentara"}
+              {komentari.length}{" "}
+              {komentari.length === 1 ? "komentar" : "komentara"} 
+              {/* ista stvar i ovde */}
             </span>
           </span>
         </div>
 
-        {/* play button*/}
         <button
           disabled={!canPlay}
           className="w-full bg-white/20 text-white py-2 rounded-lg font-heading font-semibold text-sm hover:shadow-xl hover:scale-105 transition-all duration-300 mb-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -158,7 +216,6 @@ const PodcastCard: React.FC<Props> = ({
           Slušaj 🎧
         </button>
 
-        {/* dodaj u favorite dugme */}
         {canFavorite && (
           <button
             onClick={handleToggleFavorite}
@@ -172,7 +229,6 @@ const PodcastCard: React.FC<Props> = ({
           </button>
         )}
 
-        {/* brisanje dugme */}
         {onDelete && (
           <button
             onClick={() => onDelete(podcast.id)}
@@ -182,18 +238,45 @@ const PodcastCard: React.FC<Props> = ({
           </button>
         )}
 
+        {/* fja za dodavanje komentara - samo KORISNIK i ADMIN */}
+        {canComment && (
+          <form
+            onSubmit={handleAddComment}
+            className="mt-4 border-t border-white/20 pt-3"
+          >
+            <h4 className="text-white font-heading text-sm mb-2">
+              Dodaj komentar 💬
+            </h4>
+            <textarea
+              value={noviKomentar}
+              onChange={(e) => setNoviKomentar(e.target.value)}
+              placeholder="Unesite vaš komentar..."
+              className="w-full px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 transition backdrop-blur-sm text-sm resize-none"
+              rows={3}
+              disabled={submitting}
+            />
+            <button
+              type="submit"
+              disabled={submitting || !noviKomentar.trim()}
+              className="w-full mt-2 bg-white/20 text-white py-2 rounded-lg font-heading font-semibold text-sm hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? "Dodavanje..." : "Dodaj komentar"}
+            </button>
+          </form>
+        )}
+
         {/* komentari */}
-        {podcast.komentari.length > 0 && (
+        {komentari.length > 0 && (
           <div className="mt-4 border-t border-white/20 pt-3">
             <h4 className="text-white font-heading text-sm mb-2">
-              Komentari 💬 ({podcast.komentari.length})
+              Komentari 💬 ({komentari.length})
             </h4>
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {podcast.komentari.map((komentar) => (
+              {komentari.map((komentar) => (
                 <div key={komentar.id} className="bg-white/10 rounded-lg p-2">
                   <p className="text-white/90 text-sm">{komentar.tekst}</p>
                   <p className="text-white/60 text-xs mt-1">
-                    — {komentar.korisnik.ime} {komentar.korisnik.prezime}
+                    - {komentar.korisnik.ime} {komentar.korisnik.prezime}
                   </p>
                 </div>
               ))}
