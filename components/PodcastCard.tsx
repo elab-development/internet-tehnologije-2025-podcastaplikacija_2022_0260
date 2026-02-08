@@ -136,7 +136,7 @@ const PodcastCard: React.FC<Props> = ({
         return;
       }
 
-      // Dodaj novi komentar u listu
+      // dodaj novi komentar u listu
       setKomentari([data.data, ...komentari]);
       setNoviKomentar("");
       alert(data.message);
@@ -196,6 +196,7 @@ const PodcastCard: React.FC<Props> = ({
             <span>⭐</span>
             <span>
               {favoriteCount} {favoriteCount === 1 ? "favorit" : "favorita"}
+              {/* brojanje favCount, ternary operator za jedan ili vise */}
             </span>
           </span>
           <span className="flex items-center gap-1">
@@ -203,6 +204,7 @@ const PodcastCard: React.FC<Props> = ({
             <span>
               {komentari.length}{" "}
               {komentari.length === 1 ? "komentar" : "komentara"}
+              {/* ista stvar i ovde */}
             </span>
           </span>
         </div>
@@ -214,44 +216,23 @@ const PodcastCard: React.FC<Props> = ({
           Slušaj 🎧
         </button>
 
-        {/* favoriti dugme  */}
-        {canFavorite && ( //iz  nekog razloga, nije radio obican tailwind, nego sam morala css da pisem ovako, ne znam razlog, al nek bude inline css styling
+        {canFavorite && (
           <button
             onClick={handleToggleFavorite}
-            style={{
-              backgroundColor: isFavorited
-                ? "#EAB308"
-                : "rgba(255, 255, 255, 0.2)",
-              color: "white",
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "0.5rem",
-              fontWeight: "600",
-              fontSize: "0.875rem",
-              transition: "all 0.3s",
-              marginBottom: "0.5rem",
-            }}
-            className="font-heading hover:shadow-xl hover:scale-105 transition-all duration-300"
+            className={`w-full py-2 rounded-lg font-heading font-semibold text-sm hover:shadow-xl hover:scale-105 transition-all duration-300 mb-2 ${
+              isFavorited
+                ? "bg-yellow-500 text-white"
+                : "bg-white/20 text-white"
+            }`}
           >
             {isFavorited ? "⭐ Ukloni iz favorita" : "⭐ Dodaj u favorite"}
           </button>
         )}
 
-        {/* delete dugme */}
-        {onDelete && ( //ista prica sa inline styling i ovde
+        {onDelete && (
           <button
             onClick={() => onDelete(podcast.id)}
-            style={{
-              backgroundColor: "#DC2626",
-              color: "white",
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "0.5rem",
-              fontWeight: "600",
-              fontSize: "0.875rem",
-              transition: "all 0.3s",
-            }}
-            className="font-heading hover:shadow-xl hover:scale-105 transition-all duration-300"
+            className="w-full bg-red-600 text-white py-2 rounded-lg font-heading font-semibold text-sm hover:bg-red-700 hover:shadow-xl hover:scale-105 transition-all duration-300"
           >
             Obriši 🗑️
           </button>

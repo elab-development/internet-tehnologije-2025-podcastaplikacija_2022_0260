@@ -5,10 +5,10 @@ import { getAuthUser, requireAuth } from '@/lib/middleware'
 // GET /api/podcasts/[id]
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }  // ← PROMENJENO
+  context: { params: Promise<{ id: string }> } 
 ) {
   try {
-    const params = await context.params  // ← AWAIT
+    const params = await context.params 
     const podcast = await prisma.podcast.findUnique({
       where: { id: parseInt(params.id) },
       include: {
@@ -57,14 +57,14 @@ export async function GET(
 // PUT /api/podcasts/[id]
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }  // ← PROMENJENO
+  context: { params: Promise<{ id: string }> } 
 ) {
   const authError = requireAuth(req, ['KORISNIK', 'ADMIN'])
   if (authError) return authError
 
   try {
     const user = getAuthUser(req)!
-    const params = await context.params  // ← AWAIT
+    const params = await context.params 
     const { naslov, opis, audioUrl, coverUrl } = await req.json()
 
     const podcast = await prisma.podcast.findUnique({
@@ -120,14 +120,14 @@ export async function PUT(
 // DELETE /api/podcasts/[id]
 export async function DELETE(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }  // ← PROMENJENO
+  context: { params: Promise<{ id: string }> }  
 ) {
   const authError = requireAuth(req, ['KORISNIK', 'ADMIN'])
   if (authError) return authError
 
   try {
     const user = getAuthUser(req)!
-    const params = await context.params  // ← AWAIT
+    const params = await context.params 
 
     const podcast = await prisma.podcast.findUnique({
       where: { id: parseInt(params.id) }

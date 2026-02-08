@@ -107,7 +107,7 @@ export default function PodcastsPage() {
     }
   };
 
-  /// Funkcija za brisanje podcasta
+  /// fja za brisanje podkesta
   const handleDelete = async (podcastId: number) => {
     if (!confirm("Da li ste sigurni da želite da obrišete ovaj podcast?")) {
       return;
@@ -188,7 +188,7 @@ export default function PodcastsPage() {
           </div>
         )}
 
-        {/*dodavanje podcasta mogu samo korisnik ili admin*/}
+        {/* dodavanje podcasta mogu samo korisnik ili admin */}
         {user && (user.uloga === "KORISNIK" || user.uloga === "ADMIN") && (
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mt-12 border border-white/20 max-w-xl mx-auto">
             <h3 className="text-2xl font-heading mb-4 text-white">
