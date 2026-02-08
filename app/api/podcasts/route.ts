@@ -13,23 +13,25 @@ export async function GET() {
           },
         },
         komentari: {
-  include: {
-    korisnik: {
-      select: {
-        ime: true,
-        prezime: true,
-      },
-    },
-  },
-},
-
-        favoriti: true,
+          include: {
+            korisnik: {
+              select: {
+                ime: true,
+                prezime: true,
+              },
+            },
+          },
+        },
+        favoriti: {
+          select: {
+            korisnikId: true,
+          }
+        }
       },
       orderBy: {
         datumKreiranja: 'desc',
       },
     })
-
     return NextResponse.json(podcasts)
   } catch (error) {
     console.error('Greška prilikom dohvata podcastova:', error)
@@ -54,29 +56,33 @@ export async function POST(req: NextRequest) {
     }
 
     const podcast = await prisma.podcast.findMany({
-  include: {
-    kreira: {
-      select: {
-        ime: true,
-        prezime: true,
-      },
-    },
-    komentari: {
       include: {
-        korisnik: {
+        kreira: {
           select: {
             ime: true,
             prezime: true,
           },
         },
+        komentari: {
+          include: {
+            korisnik: {
+              select: {
+                ime: true,
+                prezime: true,
+              },
+            },
+          },
+        },
+        favoriti: {
+          select: {
+            korisnikId: true,
+          },
+        },
       },
-    },
-    favoriti: true,
-  },
-  orderBy: {
-    datumKreiranja: 'desc',
-  },
-})
+      orderBy: {
+        datumKreiranja: 'desc',
+      },
+    })
 
     return NextResponse.json({
       success: true,

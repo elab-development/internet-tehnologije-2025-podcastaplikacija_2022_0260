@@ -19,6 +19,7 @@ interface Komentar {
 
 interface Favorit {
   id: number;
+  korisnikId: number;
 }
 
 interface Podcast {
@@ -45,7 +46,6 @@ export default function PodcastsPage() {
   });
 
   useEffect(() => {
-    // Učitaj podatke o korisniku iz localStorage
     const userData = localStorage.getItem("user");
     if (userData) {
       setUser(JSON.parse(userData));
@@ -180,7 +180,9 @@ export default function PodcastsPage() {
               <PodcastCard
                 key={podcast.id}
                 podcast={podcast}
+                user={user ? { userId: user.id, uloga: user.uloga } : undefined}
                 onDelete={user?.uloga === "ADMIN" ? handleDelete : undefined}
+                canPlay={true}
               />
             ))}
           </div>

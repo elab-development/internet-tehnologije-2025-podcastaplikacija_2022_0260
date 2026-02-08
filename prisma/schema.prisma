@@ -1,112 +1,112 @@
-generator client {
-  provider = "prisma-client-js"
-}
+  generator client {
+    provider = "prisma-client-js"
+  }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
 
-// Model 1: Korisnik (User)
-model Korisnik {
-  id              Int            @id @default(autoincrement())
-  ime             String
-  prezime         String
-  email           String         @unique
-  lozinkaHash     String
-  uloga           Uloga          @default(KORISNIK)
-  profilnaSlika   String?
-  datumKreiranja  DateTime       @default(now())
-  
-  // Relacije
-  podcasts        Podcast[]      @relation("KreiraniPodcasti")
-  komentari       Komentar[]
-  favoriti        Favorit[]
-  slikeProfila    SlikaProfila[]
-  sesije          Sesija[]
-  
-  @@map("korisnici")
-}
+  // Model 1: Korisnik (User)
+  model Korisnik {
+    id              Int            @id @default(autoincrement())
+    ime             String
+    prezime         String
+    email           String         @unique
+    lozinkaHash     String
+    uloga           Uloga          @default(KORISNIK)
+    profilnaSlika   String?
+    datumKreiranja  DateTime       @default(now())
+    
+    // Relacije
+    podcasts        Podcast[]      @relation("KreiraniPodcasti")
+    komentari       Komentar[]
+    favoriti        Favorit[]
+    slikeProfila    SlikaProfila[]
+    sesije          Sesija[]
+    
+    @@map("korisnici")
+  }
 
-// Model 2: Podcast
-model Podcast {
-  id              Int       @id @default(autoincrement())
-  naslov          String
-  opis            String    @db.Text
-  audioUrl        String
-  coverUrl        String?
-  brojPregleda    Int       @default(0)
-  datumKreiranja  DateTime  @default(now())
-  kreiraId        Int
-  
-  // Relacije
-  kreira         Korisnik  @relation("KreiraniPodcasti", fields: [kreiraId], references: [id], onDelete: Cascade)
-  komentari       Komentar[]
-  favoriti        Favorit[]
-  
-  @@map("podcasts")
-}
+  // Model 2: Podcast
+  model Podcast {
+    id              Int       @id @default(autoincrement())
+    naslov          String
+    opis            String    @db.Text
+    audioUrl        String
+    coverUrl        String?
+    brojPregleda    Int       @default(0)
+    datumKreiranja  DateTime  @default(now())
+    kreiraId        Int
+    
+    // Relacije
+    kreira         Korisnik  @relation("KreiraniPodcasti", fields: [kreiraId], references: [id], onDelete: Cascade)
+    komentari       Komentar[]
+    favoriti        Favorit[]
+    
+    @@map("podcasts")
+  }
 
-// Model 3: Komentar (Comment)
-model Komentar {
-  id        Int      @id @default(autoincrement())
-  tekst     String   @db.Text
-  datum     DateTime @default(now())
-  azuriran  DateTime @updatedAt
-  korisnikId Int
-  podcastId Int
-  
-  // Relacije
-  korisnik  Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
-  podcast   Podcast  @relation(fields: [podcastId], references: [id], onDelete: Cascade)
-  
-  @@map("komentari")
-}
+  // Model 3: Komentar (Comment)
+  model Komentar {
+    id        Int      @id @default(autoincrement())
+    tekst     String   @db.Text
+    datum     DateTime @default(now())
+    azuriran  DateTime @updatedAt
+    korisnikId Int
+    podcastId Int
+    
+    // Relacije
+    korisnik  Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
+    podcast   Podcast  @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+    
+    @@map("komentari")
+  }
 
-// Model 4: Favorit (Favorite)
-model Favorit {
-  id              Int      @id @default(autoincrement())
-  datumDodavanja  DateTime @default(now())
-  korisnikId      Int
-  podcastId       Int
-  
-  // Relacije
-  korisnik        Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
-  podcast         Podcast  @relation(fields: [podcastId], references: [id], onDelete: Cascade)
-  
-  @@unique([korisnikId, podcastId])
-  @@map("favoriti")
-}
+  // Model 4: Favorit (Favorite)
+  model Favorit {
+    id              Int      @id @default(autoincrement())
+    datumDodavanja  DateTime @default(now())
+    korisnikId      Int
+    podcastId       Int
+    
+    // Relacije
+    korisnik        Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
+    podcast         Podcast  @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+    
+    @@unique([korisnikId, podcastId])
+    @@map("favoriti")
+  }
 
-// Model 5: SlikaProfila (Profile Picture)
-model SlikaProfila {
-  id        Int      @id @default(autoincrement())
-  url       String
-  format    String
-  korisnikId Int
-  
-  // Relacije
-  korisnik  Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
-  
-  @@map("slike_profila")
-}
+  // Model 5: SlikaProfila (Profile Picture)
+  model SlikaProfila {
+    id        Int      @id @default(autoincrement())
+    url       String
+    format    String
+    korisnikId Int
+    
+    // Relacije
+    korisnik  Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
+    
+    @@map("slike_profila")
+  }
 
-// Model 6: Sesija (Session)
-model Sesija {
-  id            Int      @id @default(autoincrement())
-  token         String   @unique
-  datumIsteka   DateTime
-  korisnikId    Int
-  
-  // Relacije
-  korisnik      Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
-  
-  @@map("sesije")
-}
+  // Model 6: Sesija (Session)
+  model Sesija {
+    id            Int      @id @default(autoincrement())
+    token         String   @unique
+    datumIsteka   DateTime
+    korisnikId    Int
+    
+    // Relacije
+    korisnik      Korisnik @relation(fields: [korisnikId], references: [id], onDelete: Cascade)
+    
+    @@map("sesije")
+  }
 
-// Enum za uloge korisnika
-enum Uloga {
-  GOST
-  KORISNIK
-  ADMIN
-}
+  // Enum za uloge korisnika
+  enum Uloga {
+    GOST
+    KORISNIK
+    ADMIN
+  }

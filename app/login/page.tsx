@@ -46,7 +46,7 @@ export default function Login() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 flex items-center justify-center px-4 py-16">
+    <main className="min-h-screen bg-gradient-to-br from-black-900 via-purple-900/20 to-purple-600 flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 md:p-10 border border-white/20 shadow-2xl">
           <div className="text-center mb-8">
@@ -113,7 +113,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-white text-primary-600 py-3 rounded-lg font-heading font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-purple-600 py-3 rounded-lg font-heading font-semibold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Prijavljivanje..." : "Prijavi se"}
             </button>
