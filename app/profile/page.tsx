@@ -16,6 +16,52 @@ export default function Profil() {
     setUser(JSON.parse(userData));
   }, [router]);
 
+  const handleDeleteAccount = async () => {
+    if (
+      !confirm(
+        "Da li ste SIGURNI da želite da obrišete svoj nalog? Ova akcija je NEPOVRATNA!",
+      )
+    ) {
+      return;
+    }
+
+    if (
+      !confirm(
+        "Poslednje upozorenje! Svi vaši podaci, podcastovi, komentari i favoriti će biti obrisani. Da li želite da nastavite?",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`/api/korisnici/${user.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Greška pri brisanju naloga");
+        return;
+      }
+
+      // Odjavi se i preusmeri na početnu
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.dispatchEvent(new Event("userLoggedOut"));
+      alert("Vaš nalog je uspešno obrisan.");
+      router.push("/");
+    } catch (err) {
+      console.error(err);
+      alert("Greška pri brisanju naloga");
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 flex items-center justify-center">
@@ -113,6 +159,24 @@ export default function Profil() {
                   </p>
                 </div>
               )}
+
+              {/* Dugme za brisanje naloga */}
+              <div className="bg-red-500/20 p-6 mt-8">
+                <button
+                  onClick={handleDeleteAccount}
+                  style={{
+                    backgroundColor: "#DC2626",
+                    color: "white",
+                    width: "100%",
+                    padding: "0.75rem",
+                    fontWeight: "600",
+                    fontSize: "1rem",
+                  }}
+                  className="hover:bg-red-700 transition font-heading"
+                >
+                  🗑️ Obriši moj nalog
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -76,6 +76,14 @@ export default function Navbar() {
             >
               O nama
             </Link>
+            {user && user.uloga === "ADMIN" && (
+              <Link
+                href="/korisnici"
+                className="px-4 py-2 rounded-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300 font-body border border-transparent hover:border-white/30"
+              >
+                Korisnici
+              </Link>
+            )}
             <Link
               href="/contact"
               className="px-4 py-2 rounded-lg hover:bg-white/20 backdrop-blur-sm transition-all duration-300 font-body  hover:border-white/30"

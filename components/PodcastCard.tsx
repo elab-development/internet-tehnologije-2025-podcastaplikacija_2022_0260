@@ -59,7 +59,6 @@ const PodcastCard: React.FC<Props> = ({
   const [noviKomentar, setNoviKomentar] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  //  prikazivanje favorita
   useEffect(() => {
     if (user) {
       const fav = podcast.favoriti?.some((f) => f.korisnikId === user.userId);
@@ -67,7 +66,6 @@ const PodcastCard: React.FC<Props> = ({
     }
   }, [user, podcast.favoriti]);
 
-  // pauziranje
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -77,7 +75,6 @@ const PodcastCard: React.FC<Props> = ({
     };
   }, []);
 
-  // play pause dugme za muziku
   const handlePlayPause = () => {
     if (!podcast.audioUrl) return;
 
@@ -100,7 +97,6 @@ const PodcastCard: React.FC<Props> = ({
     }
   };
 
-  //  favoriti
   const handleToggleFavorite = async () => {
     if (!user) {
       alert("Morate biti prijavljeni!");
@@ -136,7 +132,6 @@ const PodcastCard: React.FC<Props> = ({
     }
   };
 
-  //  komentari
   const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -174,10 +169,44 @@ const PodcastCard: React.FC<Props> = ({
     }
   };
 
+  // 🗑️ NOVA FUNKCIJA - Brisanje komentara (samo ADMIN)
+  const handleDeleteComment = async (komentarId: number) => {
+    if (!confirm("Da li ste sigurni da želite da obrišete ovaj komentar?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`/api/komentari/${komentarId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Greška pri brisanju komentara");
+        return;
+      }
+
+      // Ukloni komentar iz liste
+      setKomentari(komentari.filter((k) => k.id !== komentarId));
+      alert(data.message);
+    } catch (err) {
+      console.error(err);
+      alert("Greška pri brisanju komentara");
+    }
+  };
+
   const canFavorite =
     user && (user.uloga === "KORISNIK" || user.uloga === "ADMIN");
 
   const canComment = canFavorite;
+
+  const isAdmin = user?.uloga === "ADMIN";
 
   return (
     <div className="bg-white/10 rounded-2xl border border-white/20 overflow-hidden shadow-xl">
@@ -205,35 +234,36 @@ const PodcastCard: React.FC<Props> = ({
         <button
           onClick={handlePlayPause}
           disabled={!podcast.audioUrl}
-          className="w-full mb-2 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition"
+          className="w-full mb-2 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPlaying ? "⏸️ Pauza" : "▶️ Pusti"}
         </button>
 
-        <button
-          onClick={handleToggleFavorite}
-          style={{
-            backgroundColor: isFavorited
-              ? "#EAB308"
-              : "rgba(255, 255, 255, 0.2)",
-            color: "white",
-            width: "100%",
-            padding: "0.5rem",
-            borderRadius: "0.5rem",
-            fontWeight: "600",
-            fontSize: "0.875rem",
-            transition: "all 0.3s",
-            marginBottom: "0.5rem",
-          }}
-          className="font-heading hover:shadow-xl hover:scale-105 transition-all duration-300"
-        >
-          {isFavorited ? "⭐ Ukloni iz favorita" : "⭐ Dodaj u favorite"}
-        </button>
+        {canFavorite && (
+          <button
+            onClick={handleToggleFavorite}
+            style={{
+              backgroundColor: isFavorited
+                ? "#EAB308"
+                : "rgba(255, 255, 255, 0.2)",
+              color: "white",
+              width: "100%",
+              padding: "0.5rem",
+              borderRadius: "0.5rem",
+              fontWeight: "600",
+              fontSize: "0.875rem",
+              transition: "all 0.3s",
+              marginBottom: "0.5rem",
+            }}
+            className="font-heading hover:shadow-xl hover:scale-105 transition-all duration-300"
+          >
+            {isFavorited ? "⭐ Ukloni iz favorita" : "⭐ Dodaj u favorite"}
+          </button>
+        )}
 
-        {onDelete && ( //ista prica sa inline styling i ovde
+        {onDelete && (
           <button
             onClick={() => onDelete(podcast.id)}
-            className="w-full bg-white/20 text-red py-2 rounded-lg font-heading font-semibold text-sm hover:shadow-xl hover:scale-105 transition-all duration-300 mb-2" //HOCU DA MI BUDE CRVENO DUGME! to moram da sredim
             style={{
               backgroundColor: "#DC2626",
               color: "white",
@@ -244,6 +274,7 @@ const PodcastCard: React.FC<Props> = ({
               fontSize: "0.875rem",
               transition: "all 0.3s",
             }}
+            className="font-heading hover:shadow-xl hover:scale-105 transition-all duration-300 mb-2"
           >
             Obriši 🗑️
           </button>
@@ -255,12 +286,12 @@ const PodcastCard: React.FC<Props> = ({
               value={noviKomentar}
               onChange={(e) => setNoviKomentar(e.target.value)}
               rows={3}
-              className="w-full p-2 rounded bg-white/20 mb-2"
+              className="w-full p-2 rounded bg-white/20 text-white placeholder-white/60 mb-2 focus:outline-none focus:ring-2 focus:ring-white/50"
               placeholder="Dodaj komentar..."
             />
             <button
               disabled={submitting}
-              className="w-full py-2 rounded bg-white/20 hover:bg-white/30"
+              className="w-full py-2 rounded bg-white/20 hover:bg-white/30 transition disabled:opacity-50"
             >
               {submitting ? "Dodavanje..." : "Dodaj komentar"}
             </button>
@@ -269,12 +300,34 @@ const PodcastCard: React.FC<Props> = ({
 
         {komentari.length > 0 && (
           <div className="mt-3 space-y-2">
+            <h4 className="text-sm font-semibold mb-2">Komentari 💬</h4>
             {komentari.map((k) => (
-              <div key={k.id} className="bg-white/10 p-2 rounded">
-                <p className="text-sm">{k.tekst}</p>
+              <div key={k.id} className="bg-white/10 p-3 rounded relative">
+                <p className="text-sm mb-1 pr-16">{k.tekst}</p>
                 <p className="text-xs text-white/60">
                   — {k.korisnik.ime} {k.korisnik.prezime}
                 </p>
+
+                {/* dugme za brisanje samo admin */}
+                {isAdmin && (
+                  <button
+                    onClick={() => handleDeleteComment(k.id)}
+                    style={{
+                      backgroundColor: "#DC2626",
+                      color: "white",
+                      padding: "0.25rem 0.5rem",
+                      borderRadius: "0.375rem",
+                      fontSize: "0.75rem",
+                      fontWeight: "600",
+                      position: "absolute",
+                      top: "0.5rem",
+                      right: "0.5rem",
+                    }}
+                    className="hover:bg-red-700 transition"
+                  >
+                    🗑️
+                  </button>
+                )}
               </div>
             ))}
           </div>
