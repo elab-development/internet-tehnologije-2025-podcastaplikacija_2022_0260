@@ -8,10 +8,10 @@ export function getAuthUser(req: NextRequest) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null
   }
-
+  
   const token = authHeader.replace('Bearer ', '')
   return verifyToken(token)
-}
+} 
 
 export function requireAuth(req: NextRequest, allowedRoles?: string[]) {
   const user = getAuthUser(req)

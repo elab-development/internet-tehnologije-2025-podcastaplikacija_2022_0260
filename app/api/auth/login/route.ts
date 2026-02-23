@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json()
 
-    // Validacija
+    // validacija
     if (!email || !password) {
       return NextResponse.json(
         { success: false, error: 'Email i lozinka su obavezni' },
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Pronađi korisnika
+    // Pronadji korisnika
     const korisnik = await prisma.korisnik.findUnique({
       where: { email }
     })
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Kreiraj token
+    // kreiraj token
     const token = createToken(korisnik.id, korisnik.uloga)
 
     return NextResponse.json({

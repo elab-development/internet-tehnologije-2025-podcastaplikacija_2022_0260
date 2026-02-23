@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
-async function main() {
+async function main() { 
   console.log('Početak seed-ovanja')
 
   // Obriši postojeće podatke
@@ -51,15 +51,15 @@ async function main() {
     },
   })
 
-  const gost = await prisma.korisnik.create({
-    data: {
-      ime: 'gost',
-      prezime: 'gostic',
-      email: 'gost@tunein.com', //ovo nema smisla, promeniti
-      lozinkaHash: password,
-      uloga: 'GOST',
-    },
-  })
+  // const gost = await prisma.korisnik.create({
+  //   data: {
+  //     ime: 'gost',
+  //     prezime: 'gostic',
+  //     email: 'gost@tunein.com', //ovo nema smisla, promeniti
+  //     lozinkaHash: password,
+  //     uloga: 'GOST',
+  //   },
+  // })
 
   console.log('Kreiram podcastove')
 
@@ -140,7 +140,7 @@ async function main() {
 
   console.log('Seed završen!')
   console.log('\n Kredencijali za testiranje:')
-  console.log('  Email: tea@tunein.com | nikola@tunein.com | neko@tunein.com | gost@tunein.com')
+  console.log('  Email: tea@tunein.com | nikola@tunein.com | neko@tunein.com')
   console.log('  Lozinka: lozinka123')
 }
 

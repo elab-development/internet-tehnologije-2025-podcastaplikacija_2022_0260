@@ -4,14 +4,14 @@ import { getAuthUser, requireAuth } from '@/lib/middleware'
 
 export async function POST(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }  // ← PROMENJENO
+  context: { params: Promise<{ id: string }> } 
 ) {
   const authError = requireAuth(req, ['KORISNIK', 'ADMIN'])
   if (authError) return authError
 
   try {
     const user = getAuthUser(req)!
-    const params = await context.params  // ← AWAIT OVDE
+    const params = await context.params  
     const podcastId = parseInt(params.id)
 
     const existingFavorit = await prisma.favorit.findUnique({

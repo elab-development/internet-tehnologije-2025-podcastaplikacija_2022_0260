@@ -140,12 +140,12 @@ export async function DELETE(
       )
     }
 
-    if (podcast.kreiraId !== user.userId && user.uloga !== 'ADMIN') {
-      return NextResponse.json(
-        { success: false, error: 'Nemate dozvolu da obrišete ovaj podcast' },
-        { status: 403 }
-      )
-    }
+    // if (podcast.kreiraId !== user.userId && user.uloga !== 'ADMIN') {
+    //   return NextResponse.json(
+    //     { success: false, error: 'Nemate dozvolu da obrišete ovaj podcast' },
+    //     { status: 403 }
+    //   )
+    // }
 
     await prisma.podcast.delete({
       where: { id: parseInt(params.id) }

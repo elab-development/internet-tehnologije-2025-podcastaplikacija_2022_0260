@@ -27,7 +27,6 @@ export default function About() {
           </p>
         </div>
 
-        {/* Vrednosti - Grid */}
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-white hover:bg-white/20 transition-all duration-300 border border-white/20 shadow-xl">
             <div className="text-5xl mb-4">🎯</div>
@@ -115,7 +114,7 @@ export default function About() {
               <Link href="/login">Započni danas</Link>
             </button>
             <button className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-full font-heading font-semibold text-lg hover:bg-white hover:text-purple-600 transition-all duration-300">
-              <Link href="/contact">Kontaktiraj nas</Link> 
+              <Link href="/contact">Kontaktiraj nas</Link>
             </button>
           </div>
         </div>

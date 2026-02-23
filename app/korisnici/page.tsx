@@ -28,14 +28,14 @@ export default function KorisniciPage() {
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
 
-    // Samo ADMIN može videti ovu stranicu
+    // samo admin može videti ovu stranicu
     if (parsedUser.uloga !== "ADMIN") {
-      alert("Nemate dozvolu za pristup ovoj stranici!");
+      //alert("Nemate dozvolu za pristup ovoj stranici!");
       router.push("/");
       return;
     }
 
-    // Učitaj korisnike
+    // ucitaj korisnike
     fetchKorisnici();
   }, [router]);
 
@@ -86,7 +86,7 @@ export default function KorisniciPage() {
       }
 
       alert(data.message);
-      // Osvježi listu
+      // osveži listu
       setKorisnici(korisnici.filter((k) => k.id !== korisnikId));
     } catch (err) {
       console.error(err);
@@ -118,7 +118,7 @@ export default function KorisniciPage() {
               {korisnici.map((korisnik) => (
                 <div
                   key={korisnik.id}
-                  className="bg-white/10 rounded-xl p-4 flex items-center justify-between"
+                  className="bg-white/10 rounded-xl mb-4 p-4 flex items-center justify-between"
                 >
                   <div className="text-white">
                     <h3 className="text-lg font-heading">

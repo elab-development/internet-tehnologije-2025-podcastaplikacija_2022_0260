@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/middleware'
 
-// Dobrisi komentar - samo administrator sme
+// obrisi komentar - samo administrator sme
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }

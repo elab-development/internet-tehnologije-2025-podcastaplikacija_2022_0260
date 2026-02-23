@@ -91,7 +91,7 @@ export default function Navbar() {
               Kontakt
             </Link>
 
-            {/* Ako je prijavljen */}
+            {/* ako je prijavljen */}
             {user ? (
               <>
                 <Link

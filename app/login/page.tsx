@@ -30,7 +30,7 @@ export default function Login() {
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.korisnik));
 
-        // Emituj event da je korisnik prijavljen
+        // event da je korisnik prijavljen
         window.dispatchEvent(new Event("userLoggedIn"));
 
         alert(`Dobrodošli, ${data.data.korisnik.ime}!`);

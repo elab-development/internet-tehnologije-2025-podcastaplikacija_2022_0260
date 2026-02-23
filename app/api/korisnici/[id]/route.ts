@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getAuthUser, requireAuth } from '@/lib/middleware'
-
-// DELETE /api/korisnici/[id] - Obriši korisnika
-// ADMIN može da briše bilo koga
-// KORISNIK može da briše samo sebe
+ //brisanje usera
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
@@ -17,7 +14,7 @@ export async function DELETE(
     const params = await context.params
     const korisnikId = parseInt(params.id)
 
-    // Proveri da li korisnik postoji
+    // proveri da li korisnik postoji
     const korisnik = await prisma.korisnik.findUnique({
       where: { id: korisnikId }
     })
@@ -29,17 +26,7 @@ export async function DELETE(
       )
     }
 
-    // Proveri dozvole:
-    // - ADMIN može da briše bilo koga
-    // - KORISNIK može da briše samo sebe
-    if (user.uloga !== 'ADMIN' && user.userId !== korisnikId) {
-      return NextResponse.json(
-        { success: false, error: 'Nemate dozvolu da obrišete ovog korisnika' },
-        { status: 403 }
-      )
-    }
-
-    // Obriši korisnika (cascade će obrisati sve povezano)
+    // cascade delete
     await prisma.korisnik.delete({
       where: { id: korisnikId }
     })

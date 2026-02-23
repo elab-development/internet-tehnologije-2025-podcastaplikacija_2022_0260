@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hashPassword, createToken } from '@/lib/auth'
+import { Uloga } from '@prisma/client'
+
+
 
 export async function POST(req: NextRequest) {
   try {
     const { ime, prezime, email, password } = await req.json()
 
-    // Validacija
+    // validacija
     if (!ime || !prezime || !email || !password) {
       return NextResponse.json(
         { success: false, error: 'Sva polja su obavezna' },
@@ -14,7 +17,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Proveri da li korisnik postoji
+    // proveri da li korisnik postoji
     const postojeciKorisnik = await prisma.korisnik.findUnique({
       where: { email }
     })
@@ -26,17 +29,17 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Hashuj lozinku
+    // hash
     const lozinkaHash = await hashPassword(password)
 
-    // Kreiraj korisnika
+    // kreiraj korisnika
     const korisnik = await prisma.korisnik.create({
       data: {
         ime,
         prezime,
         email,
         lozinkaHash,
-        uloga: 'KORISNIK' // Default uloga
+        uloga: Uloga.KORISNIK
       },
       select: {
         id: true,
@@ -47,8 +50,8 @@ export async function POST(req: NextRequest) {
         datumKreiranja: true
       }
     })
-
-    // Kreiraj token
+    
+    // kreiraj token
     const token = createToken(korisnik.id, korisnik.uloga)
 
     return NextResponse.json({

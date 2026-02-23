@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: podcast-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tea
+      POSTGRES_DB: podcast_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - podcast-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: podcast-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:tea@postgres:5432/podcast_db?schema=public
+      JWT_SECRET: podcast-2026-nikola-tea
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - podcast-network
+    command: sh -c "node_modules/.bin/prisma migrate deploy && node server.js"
+
+volumes:
+  postgres_data:
+
+networks:
+  podcast-network:
+    driver: bridge
